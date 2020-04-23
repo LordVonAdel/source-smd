@@ -4,7 +4,7 @@ Package that works with Studiomdl Data
 ## Usage
 Example:
 ```javascript
-const SMD = require("StudioMDL");
+const SMD = require("source-smd");
 const fs = require("fs");
 
 let smd = new SMD();

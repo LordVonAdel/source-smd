@@ -1,6 +1,6 @@
 {
   "name": "source-smd",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "StudioMDL library",
   "main": "StudioMDL.js",
   "scripts": {
