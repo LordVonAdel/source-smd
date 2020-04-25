@@ -1,0 +1,11 @@
+[0.0.1]
+Initial release
+
+[0.0.2]
+Fixed missing file
+
+[0.0.3]
+Added quads generator
+
+[0.0.4]
+Fixed getNodeIdByName()

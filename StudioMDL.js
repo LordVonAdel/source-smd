@@ -47,13 +47,23 @@ class SMD {
   }
 
   /**
+   * Adds four triangles from four vertices as double sided quad.
+   */
+  addQuad(material, vertex1, vertex2, vertex3, vertex4) {
+    this.addTriangle(material, vertex1, vertex2, vertex3);
+    this.addTriangle(material, vertex3, vertex2, vertex1);
+    this.addTriangle(material, vertex1, vertex3, vertex4);
+    this.addTriangle(material, vertex1, vertex4, vertex3);
+  }
+
+  /**
    * Adds a node
    * @param {*} name Name of the node
    * @param {*} parent Parent node id
    * @returns {Number} Id of the newly added node
    */
   addNode(name, parent) {
-    let id = this.nodes.length();
+    let id = this.nodes.length;
     this.nodes.push(new Node(id, name, parent));
     return id;
   }
@@ -64,7 +74,7 @@ class SMD {
    * @returns {Number} Id of the node or -1 when not found
    */
   getNodeIdByName(name) {
-    let n = this.nodes.find(n => n.name == name);
+    let n = this.nodes.find(n => n.boneName == name);
     if (n) return n.id;
     return -1;
   }

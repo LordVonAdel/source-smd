@@ -4,79 +4,60 @@ const fs = require("fs");
 function createCube(size) {
   // UV's and face directions are messed up. But works for testing
   let smd = SMD.createSimple();
+  smd.addNode("animated", 0);
   let material = "test_cube";
 
-  // Front
-  smd.addTriangle(material,
-    SMD.createVertex(0, size, 0, 0, 0, 0, -1, 1, 0),
-    SMD.createVertex(0, 0, 0, 0, 0, 0, -1, 0, 0),
-    SMD.createVertex(0, size, size, 0, 0, 0, -1, 1, 1)
-  );
-  smd.addTriangle(material,
-    SMD.createVertex(0, 0, 0, 0, 0, 0, -1, 0, 0),
-    SMD.createVertex(0, size, size, 0, 0, 0, -1, 1, 1),
-    SMD.createVertex(0, 0, size, 0, 0, 0, -1, 0, 1)
-  );
-
-  // Back
-  smd.addTriangle(material,
-    SMD.createVertex(0,  size, 0   , size,  0, 0, 1,  1, 0),
-    SMD.createVertex(0,  0   , 0   , size,  0, 0, 1,  0, 0),
-    SMD.createVertex(0,  size, size, size,  0, 0, 1,  1, 1)
-  );
-  smd.addTriangle(material,
-    SMD.createVertex(0, 0, 0, size, 0, 0, 1, 0, 0),
-    SMD.createVertex(0, size, size, size, 0, 0, 1, 1, 1),
-    SMD.createVertex(0, 0, size, size, 0, 0, 1, 0, 1)
-  );
-
   // Bottom
-  smd.addTriangle(material,
-    SMD.createVertex(0, 0, 0, 0, 0, -1, 0, 0, 0),
-    SMD.createVertex(0, size, 0, 0, 0, -1, 0, 1, 0),
-    SMD.createVertex(0, size, 0, size, 0, -1, 0, 1, 1)
-  );
-  smd.addTriangle(material,
-    SMD.createVertex(0, 0, 0, size, 0, -1, 0, 0, 1),
-    SMD.createVertex(0, 0, 0, 0, 0, -1, 0, 0, 0),
-    SMD.createVertex(0, size, 0, size, 0, -1, 0, 1, 1)
+  smd.addQuad(material,
+    SMD.createVertex(1, 0, 0, 0, 0, 0, -1, 0, 0),
+    SMD.createVertex(1, size, 0, 0, 0, 0, -1, 1, 0),
+    SMD.createVertex(1, size, 0, size, 0, 0, -1, 1, 1),
+    SMD.createVertex(1, 0, 0, size, 0, 0, -1, 0, 1)
   );
 
   // Top
-  smd.addTriangle(material,
-    SMD.createVertex(0, size, size, 0, 0, 1, 0, 1, 0),
-    SMD.createVertex(0, 0, 0, size, 0, 1, 0, 0, 0),
-    SMD.createVertex(0, size, size, size, 0, 1, 0, 1, 1)
-  );
-  smd.addTriangle(material,
-    SMD.createVertex(0, 0, size, 0, 0, 1, 0, 0, 0),
-    SMD.createVertex(0, 0, size, size, 0, 1, 0, 0, 1),
-    SMD.createVertex(0, size, size, size, 0, 1, 0, 1, 1)
+  smd.addQuad(material,
+    SMD.createVertex(1, 0, size, 0, 0, 0, -1, 0, 0),
+    SMD.createVertex(1, size, size, 0, 0, 0, -1, 1, 0),
+    SMD.createVertex(1, size, size, size, 0, 0, -1, 1, 1),
+    SMD.createVertex(1, 0, size, size, 0, 0, -1, 0, 1)
   );
 
   // Left
-  smd.addTriangle(material,
-    SMD.createVertex(0, 0, 0, size, -1, 0, 0, 1, 0),
-    SMD.createVertex(0, 0, 0, 0, -1, 0, 0, 0, 0),
-    SMD.createVertex(0, 0, size, size, -1, 0, 0, 1, 1)
-  );
-  smd.addTriangle(material,
-    SMD.createVertex(0, 0, 0, 0, -1, 0, 0, 0, 0),
-    SMD.createVertex(0, 0, size, 0, -1, 0, 0, 1, 1),
-    SMD.createVertex(0, 0, size, size, -1, 0, 0, 0, 1)
+  smd.addQuad(material,
+    SMD.createVertex(1, 0, 0, 0, -1, 0, 0, 0, 0),
+    SMD.createVertex(1, 0, 0, size, -1, 0, 0, 1, 0),
+    SMD.createVertex(1, 0, size, size, -1, 0, 0, 1, 1),
+    SMD.createVertex(1, 0, size, 0, -1, 0, 0, 0, 1)
   );
 
   // Right
-  smd.addTriangle(material,
-    SMD.createVertex(0 ,size, 0, size, 1, 0, 0, 1, 0),
-    SMD.createVertex(0, size, 0, 0, 1, 0, 0, 0, 0),
-    SMD.createVertex(0, size, size, size, 1, 0, 0, 1, 1)
+  smd.addQuad(material,
+    SMD.createVertex(1, size, 0, 0, 1, 0, 0, 0, 0),
+    SMD.createVertex(1, size, 0, size, 1, 0, 0, 1, 0),
+    SMD.createVertex(1, size, size, size, 1, 0, 0, 1, 1),
+    SMD.createVertex(1, size, size, 0, 1, 0, 0, 0, 1)
   );
-  smd.addTriangle(material,
-    SMD.createVertex(0, size, 0, 0, 1, 0, 0, 0, 0),
-    SMD.createVertex(0, size, size, 0, 1, 0, 0, 1, 1),
-    SMD.createVertex(0, size, size, size, 1, 0, 0, 0, 1)
+
+  // Front
+  smd.addQuad(material,
+    SMD.createVertex(1, 0, 0, 0, 1, 0, -1, 0, 0),
+    SMD.createVertex(1, size, 0, 0, 1, 0, -1, 1, 0),
+    SMD.createVertex(1, size, size, 0, 1, 0, -1, 1, 1),
+    SMD.createVertex(1, 0, size, 0, 1, 0, -1, 0, 1)
   );
+
+  // Back
+  smd.addQuad(material,
+    SMD.createVertex(1, 0, 0, size, 1, 0, -1, 0, 0),
+    SMD.createVertex(1, size, 0, size, 1, 0, -1, 1, 0),
+    SMD.createVertex(1, size, size, size, 1, 0, -1, 1, 1),
+    SMD.createVertex(1, 0, size, size, 1, 0, -1, 0, 1)
+  );
+
+  smd.addSkeleton(1, 1, 0, 0, 0, 0, 0, 0);
+  smd.addSkeleton(2, 1, 0, 0, 1, Math.PI, 0, 0);
+  smd.addSkeleton(3, 1, 0, 0, 0, 0, 0, 0);
 
   return smd;
 }
