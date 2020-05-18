@@ -3,6 +3,7 @@
  * https://developer.valvesoftware.com/wiki/Studiomdl_Data
  */
 
+const SMDError = require("./SMDError.js");
 const SMD_HEADER = "version 1\n";
 
 /**
@@ -26,6 +27,7 @@ class SMD {
    * @param {Vertex} vertex1 
    * @param {Vertex} vertex2 
    * @param {Vertex} vertex3 
+   * @returns {void}
    */
   addTriangle(material, vertex1, vertex2, vertex3) {
     this.triangles.push(new Triangle(material, vertex1, vertex2, vertex3));
@@ -41,6 +43,7 @@ class SMD {
    * @param {*} rotX X-Rotation of the bone at that time
    * @param {*} rotY Y-Rotation of the bone at that time
    * @param {*} rotZ Z-Rotation of the bone at that time
+   * @returns {void}
    */
   addSkeleton(time, boneId, posX, posY, posZ, rotX, rotY, rotZ) {
     this.skeleton.push({time, boneId, pos: [posX, posY, posZ], rot: [rotX, rotY, rotZ]});
@@ -48,6 +51,12 @@ class SMD {
 
   /**
    * Adds four triangles from four vertices as double sided quad.
+   * @param {String} material Material to use for the triangles
+   * @param {Vertex} vertex1 Vertex1
+   * @param {Vertex} vertex2 Vertex2
+   * @param {Vertex} vertex3 Vertex3
+   * @param {Vertex} vertex4 Vertex4
+   * @returns {void}
    */
   addQuad(material, vertex1, vertex2, vertex3, vertex4) {
     this.addTriangle(material, vertex1, vertex2, vertex3);
@@ -80,7 +89,84 @@ class SMD {
   }
 
   /**
+   * Loads the content from a SMD file into this object
+   * @param {String} content 
+   * @returns {void}
+   */
+  import(content) {
+    let lines = content.split("\n").filter(line => !line.startsWith("//")).map(line => line.replace(/[\x00-\x1F\x7F-\x9F]/g, "").trim());
+    if (lines[0] != SMD_HEADER.split("\n")[0]) throw new SMDError("Unknown SMD version!", 1, lines[0]);
+
+    for (let i = 1; i < lines.length; i++) {
+      let line = lines[i];
+      if (line == "nodes") {
+        i = this._importNodes(lines, i);
+      } else if (line == "skeleton") {
+        i = this._importSekeleton(lines, i);
+      } else if (line == "triangles") {
+        i = this._importTriangles(lines, i);
+      } else if (line == "vertexanimation") {
+        i = this._importVertexAnimation(lines, i);
+      }
+    }
+  }
+
+  _importNodes(lines, lineNumber) {
+    while (lines[++lineNumber] != "end") {
+      let line = lines[lineNumber];
+      if (lineNumber >= lines.length) throw new SMDError("SMD Data Corrupted: Nodes block does not end", lineNumber+1, line);
+      let values = customStringSplit(line);
+      if (values.length != 3) throw new SMDError("SMD Data Corrupted: Expected 3 values in line " + lineNumber+1, lineNumber+1, line);
+      let id = +values[0];
+      let name = values[1];
+      let parent = +values[2];
+      this.nodes[id] = new Node(id, name, parent);
+    }
+    return lineNumber;
+  }
+
+  _importSekeleton(lines, lineNumber) {
+    let time = 0;
+    while (lines[++lineNumber] != "end") {
+      let line = lines[lineNumber];
+      if (lineNumber >= lines.length) throw new SMDError("SMD Data Corrupted: Skeleton block does not end", lineNumber+1, line);
+      let values = line.split(" ");
+      if (values[0] == "time") {
+        time = +values[1];
+      } else {
+        if (values.length != 7) throw new SMDError("SMD Data Corrupted: Expected 7 values in line " + lineNumber+1, lineNumber+1, line);
+        //values: [BoneID, posX, posY, posZ, rotX, rotY, rotZ]
+        this.addSkeleton(time, ...values);
+      }
+    }
+    return lineNumber;
+  }
+
+  _importTriangles(lines, lineNumber) {
+    while (lines[++lineNumber] != "end") {
+      if ((lineNumber+4) >= lines.length) throw new SMDError("SMD Data Corrupted: Triangles block does not end", lineNumber+1, line);
+      
+      let material = lines[lineNumber];
+      let vertex1 = lines[lineNumber+1].split(" ");
+      let vertex2 = lines[lineNumber+2].split(" ");
+      let vertex3 = lines[lineNumber+3].split(" ");
+
+      this.addTriangle(material, SMD.createVertex(...vertex1), SMD.createVertex(...vertex2), SMD.createVertex(...vertex3));
+      lineNumber+=3;
+    }
+    return lineNumber;
+  }
+
+  _importVertexAnimation(lines, lineNumber) {
+    while (lines[++lineNumber] != "end") {
+      if (lineNumber >= lines.length) throw new SMDError("SMD Data Corrupted: Vertex Animation block does not end", lineNumber+1, line);
+    }
+    return lineNumber;
+  }
+
+  /**
    * Returns a string of the content for the .smd file
+   * @returns {String} Content of the SMD file
    */
   export() {
     return SMD_HEADER
@@ -159,6 +245,17 @@ class SMD {
     return smd;
   }
 
+  /**
+   * Creates a mesh from the content of a SMD file
+   * @param {String} content The SMD content
+   * @returns {SMD} The created smd
+   */
+  static fromContent(content) {
+    let smd = new SMD();
+    smd.import(content);
+    return smd;
+  }
+
 }
 
 module.exports = SMD;
@@ -203,4 +300,33 @@ class Triangle {
     + this.vertices[2].join(" ") + "\n";
   }
 
+}
+
+/**
+ * Splits an string at spaces, ignoring while in string literal
+ */
+function customStringSplit(str) {
+  const literalChar = '"';
+  const splitter = " ";
+  let inLiteral = false;
+
+  let out = [];
+  let block = "";
+
+  for (let i = 0; i < str.length; i++) {
+    let char = str[i];
+    if (char == literalChar) {
+      inLiteral = !inLiteral;
+      continue;
+    }
+    if (char == splitter) {
+      out.push(block);
+      block = "";
+      continue;
+    }
+    block += char;
+  }
+  out.push(block);
+
+  return out;
 }

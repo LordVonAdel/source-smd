@@ -63,4 +63,4 @@ function createCube(size) {
 }
 
 let smd = createCube(64);
-fs.writeFileSync("test_cube.smd", smd.export());
+fs.writeFileSync("test/test_cube.smd", smd.export());
