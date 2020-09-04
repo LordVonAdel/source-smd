@@ -9,3 +9,6 @@ Added quads generator
 
 [0.0.4]
 Fixed getNodeIdByName()
+
+[0.0.5]
+Added SMD.import()
