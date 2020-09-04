@@ -1,5 +1,5 @@
 # source-smd
-Package that works with Studiomdl Data
+This module provides a class which instances can be used to define 3D models. These models can then be exported as SMD. SMD files together with a QC file can be used to compile them into source engine compatible models with StudioSMD.
 
 ## Usage
 Example:
