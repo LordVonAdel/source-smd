@@ -62,5 +62,13 @@ function createCube(size) {
   return smd;
 }
 
+function loadFromObj(filename) {
+  let data = fs.readFileSync(filename);
+  return SMD.fromObj(data.toString("ascii"));
+}
+
 let smd = createCube(64);
 fs.writeFileSync("test/test_cube.smd", smd.export());
+
+smd = loadFromObj("test/testmodel.obj");
+fs.writeFileSync("test/test_obj.smd", smd.export());

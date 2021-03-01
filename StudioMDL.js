@@ -219,6 +219,59 @@ class SMD {
   }
 
   /**
+   * Loads the content from an obj file into this object.
+   * Does only work with triangulated meshes!
+   * @param {String} objData 
+   * @returns {void}
+   */
+  importObj(objData) {
+    let lines = objData.split("\n");
+
+    let vertices = [];
+    let texcoords = [];
+    let normals = [];
+
+    let currentMaterial = "";
+    let currentNode = null;
+
+    for (let line of lines) {
+      let blocks = line.split(" ");
+
+      switch (blocks[0]) {
+        case "usemtl":
+          currentMaterial = blocks[1];
+          break;
+        case "o":
+          currentNode = this.addNode(blocks[1], 0);
+          break;
+        case "v":
+          vertices.push([+blocks[1], +blocks[2], +blocks[3]]);
+          break;
+        case "vt":
+          texcoords.push([+blocks[1], +blocks[2]]);
+          break;
+        case "vn":
+          normals.push([+blocks[1], +blocks[2], +blocks[3]]);
+          break;
+        case "f":
+          let smdVerts = [];
+          for (let i = 1; i <= 3; i++) {
+            let vertexString = blocks[i];
+            let splitted = vertexString.split("/");
+            
+            let position = vertices[+splitted[0] - 1];
+            let texcoord = texcoords[+splitted[1] - 1];
+            let normal = normals[+splitted[2] - 1];
+
+            smdVerts.push(SMD.createVertex(currentNode, ...position, ...normal, ...texcoord));
+          }
+          this.addTriangle(currentMaterial, ...smdVerts);
+          break;
+      }
+    }
+  }
+
+  /**
    * Creates a vertex
    * @param {Number} parentBone Id of the parent bone
    * @param {Number} x X Position in units
@@ -253,6 +306,16 @@ class SMD {
   static fromContent(content) {
     let smd = new SMD();
     smd.import(content);
+    return smd;
+  }
+
+  /**
+   * Creates a mesh from the content of an obj file
+   * @param {String} content The obj file content
+   */
+  static fromObj(content) {
+    let smd = new SMD();
+    smd.importObj(content);
     return smd;
   }
 
